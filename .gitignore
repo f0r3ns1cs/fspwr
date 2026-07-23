@@ -1,0 +1,18 @@
+# Build output (OutDir and IntDir both live under build/)
+/build/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.aps
+*.VC.db
+*.VC.opendb
+
+# Stray MSVC artifacts if built outside build/
+*.obj
+*.pdb
+*.ilk
+*.res
+*.tlog
+*.exe

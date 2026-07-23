@@ -1,0 +1,20 @@
+#pragma once
+
+#define IDD_CREATE 101
+#define IDD_PROMPT 102
+#define IDD_DIFF 103
+
+#define IDC_BASE 1001
+#define IDC_NAME 1002
+#define IDC_DESC 1003
+#define IDC_GUID 1004
+#define IDC_REGEN 1005
+
+#define IDC_PROMPT_LABEL 1010
+#define IDC_PROMPT_EDIT 1011
+
+#define IDC_DIFF_A 1020
+#define IDC_DIFF_B 1021
+#define IDC_DIFF_COMPARE 1022
+#define IDC_DIFF_LIST 1023
+#define IDC_DIFF_SUMMARY 1024

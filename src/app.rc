@@ -1,0 +1,79 @@
+#include "resource.h"
+#include <winres.h>
+
+// ---- Create plan dialog ----
+IDD_CREATE DIALOGEX 0, 0, 300, 190
+STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Create a power plan"
+FONT 9, "Segoe UI", 400, 0, 0x1
+BEGIN
+    LTEXT           "Base scheme:", -1, 10, 10, 120, 9
+    COMBOBOX        IDC_BASE, 10, 22, 280, 120, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Name:", -1, 10, 44, 120, 9
+    EDITTEXT        IDC_NAME, 10, 56, 280, 14, ES_AUTOHSCROLL | WS_TABSTOP
+    LTEXT           "Description:", -1, 10, 76, 120, 9
+    EDITTEXT        IDC_DESC, 10, 88, 280, 14, ES_AUTOHSCROLL | WS_TABSTOP
+    LTEXT           "Plan GUID:", -1, 10, 108, 120, 9
+    EDITTEXT        IDC_GUID, 10, 120, 210, 14, ES_AUTOHSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Regenerate", IDC_REGEN, 225, 120, 65, 14, WS_TABSTOP
+    LTEXT           "A stable custom GUID lets re-running this tool update the plan in place.", -1, 10, 140, 280, 18
+    DEFPUSHBUTTON   "Create", IDOK, 175, 168, 55, 16, WS_TABSTOP
+    PUSHBUTTON      "Cancel", IDCANCEL, 235, 168, 55, 16, WS_TABSTOP
+END
+
+// ---- Single-field prompt dialog (rename / description) ----
+IDD_PROMPT DIALOGEX 0, 0, 280, 78
+STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION ""
+FONT 9, "Segoe UI", 400, 0, 0x1
+BEGIN
+    LTEXT           "", IDC_PROMPT_LABEL, 10, 10, 260, 9
+    EDITTEXT        IDC_PROMPT_EDIT, 10, 22, 260, 14, ES_AUTOHSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "OK", IDOK, 155, 54, 55, 16, WS_TABSTOP
+    PUSHBUTTON      "Cancel", IDCANCEL, 215, 54, 55, 16, WS_TABSTOP
+END
+
+// ---- Diff two plans dialog ----
+IDD_DIFF DIALOGEX 0, 0, 520, 320
+STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Compare power plans"
+FONT 9, "Segoe UI", 400, 0, 0x1
+BEGIN
+    LTEXT           "Plan A:", -1, 10, 12, 40, 9
+    COMBOBOX        IDC_DIFF_A, 50, 10, 180, 200, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Plan B:", -1, 245, 12, 40, 9
+    COMBOBOX        IDC_DIFF_B, 285, 10, 180, 200, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "Compare", IDC_DIFF_COMPARE, 470, 9, 42, 16, WS_TABSTOP
+    LTEXT           "Pick two plans and choose Compare.", IDC_DIFF_SUMMARY, 10, 32, 502, 9
+    CONTROL         "", IDC_DIFF_LIST, "SysListView32", LVS_REPORT | LVS_SINGLESEL | WS_BORDER | WS_TABSTOP, 10, 46, 502, 246
+    PUSHBUTTON      "Close", IDCANCEL, 462, 298, 50, 16, WS_TABSTOP
+END
+
+// ---- Version ----
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,0
+ PRODUCTVERSION 1,0,0,0
+ FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+ FILEFLAGS 0x0L
+ FILEOS VOS_NT_WINDOWS32
+ FILETYPE VFT_APP
+ FILESUBTYPE VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", "fspwr"
+            VALUE "FileDescription", "fspwr"
+            VALUE "FileVersion", "1.0.0.0"
+            VALUE "InternalName", "fspwr"
+            VALUE "OriginalFilename", "fspwr.exe"
+            VALUE "ProductName", "fspwr"
+            VALUE "ProductVersion", "1.0.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
