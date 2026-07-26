@@ -46,6 +46,8 @@ BEGIN
     DEFPUSHBUTTON   "Compare", IDC_DIFF_COMPARE, 470, 9, 42, 16, WS_TABSTOP
     LTEXT           "Pick two plans and choose Compare.", IDC_DIFF_SUMMARY, 10, 32, 502, 9
     CONTROL         "", IDC_DIFF_LIST, "SysListView32", LVS_REPORT | LVS_SINGLESEL | WS_BORDER | WS_TABSTOP, 10, 46, 502, 246
+    PUSHBUTTON      "Merge these...", IDC_DIFF_MERGE, 10, 298, 70, 16, WS_TABSTOP
+    LTEXT           "Opens A in the main window with B as the compare source, so values can be copied across.", -1, 86, 301, 370, 9
     PUSHBUTTON      "Close", IDCANCEL, 462, 298, 50, 16, WS_TABSTOP
 END
 
