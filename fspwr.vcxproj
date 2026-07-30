@@ -75,6 +75,7 @@
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\power\accessCheck.cpp" />
+    <ClCompile Include="src\power\attributes.cpp" />
     <ClCompile Include="src\power\fsUtil.cpp" />
     <ClCompile Include="src\power\guidUtil.cpp" />
     <ClCompile Include="src\power\platform.cpp" />
@@ -89,6 +90,7 @@
   <ItemGroup>
     <ClInclude Include="src\resource.h" />
     <ClInclude Include="src\power\accessCheck.h" />
+    <ClInclude Include="src\power\attributes.h" />
     <ClInclude Include="src\power\expected.h" />
     <ClInclude Include="src\power\fsUtil.h" />
     <ClInclude Include="src\power\guidUtil.h" />

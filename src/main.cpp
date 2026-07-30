@@ -1,3 +1,4 @@
+#include "power/attributes.h"
 #include "power/guidUtil.h"
 #include "power/platform.h"
 #include "power/powerImport.h"
@@ -80,6 +81,9 @@ namespace
 		ID_CTX_COPY_AC,
 		ID_CTX_COPY_DC,
 		ID_CTX_REVERT,
+		ID_CTX_UNHIDE,
+		ID_CTX_HIDE,
+		ID_CTX_UNHIDE_ALL,
 	};
 
 	enum class LoadState { Loading, Ready, Error };
@@ -404,6 +408,9 @@ class App {
 	void showPendingDiff();
 	void showCreator();
 	void activateSelected();
+
+	void setSelectedHidden(bool hidden);
+	void unhideEverything();
 	void renameSelected();
 	void editDescriptionSelected();
 	void duplicateSelected();
@@ -702,6 +709,21 @@ void App::showSettingMenu(int screenX, int screenY) {
 	}
 	::AppendMenuW(menu, anyPending ? MF_STRING : (MF_STRING | MF_GRAYED), ID_CTX_REVERT,
 	              L"Revert pending change");
+
+	::AppendMenuW(menu, MF_SEPARATOR, 0, nullptr);
+	bool anyHidden = false;
+	for (size_t i : sel) {
+		if (i < enumeration_.settings.size() && enumeration_.settings[i].desc.hidden) {
+			anyHidden = true;
+			break;
+		}
+	}
+	::AppendMenuW(menu, MF_STRING, anyHidden ? ID_CTX_UNHIDE : ID_CTX_HIDE,
+	              anyHidden ? L"Show in Windows power options"
+	                        : L"Hide from Windows power options");
+	::AppendMenuW(menu, MF_STRING, ID_CTX_UNHIDE_ALL,
+	              L"Show every hidden setting in Windows...");
+
 	::TrackPopupMenu(menu, TPM_LEFTALIGN | TPM_TOPALIGN, screenX, screenY, 0, hwnd_, nullptr);
 	::DestroyMenu(menu);
 }
@@ -1944,6 +1966,70 @@ void App::showCreator() {
 	         data.name + L"\n" + guidToString(dest));
 }
 
+// Writes POWER_ATTRIBUTE_HIDE for the selected rows.
+void App::setSelectedHidden(bool hidden) {
+	std::vector<SettingRef> refs;
+	for (size_t i : selectedSettingIndices()) {
+		if (i >= enumeration_.settings.size()) continue;
+		const SettingDescriptor& d = enumeration_.settings[i].desc;
+		if (d.hidden == hidden) continue;   // already there
+		refs.push_back(SettingRef{ d.subgroup, d.id });
+	}
+	if (refs.empty())
+		return;
+
+	const AttributeBatch r = hidden ? hideAll(refs) : unhideAll(refs);
+	if (r.failed > 0 && r.firstError) {
+		::MessageBoxW(hwnd_, r.firstError->describe().c_str(), L"fspwr",
+		              MB_ICONERROR | MB_OK);
+	}
+	if (r.changed > 0) {
+		startEnumeration();
+	}
+}
+
+void App::unhideEverything() {
+	if (enumeration_.settings.empty())
+		return;
+
+	std::vector<SettingRef> refs;
+	for (const SettingEntry& e : enumeration_.settings)
+		if (e.desc.hidden)
+			refs.push_back(SettingRef{ e.desc.subgroup, e.desc.id });
+
+	if (refs.empty()) {
+		::MessageBoxW(hwnd_, L"Nothing is hidden - every setting in this plan already "
+		                     L"appears in Windows power options.",
+		              L"fspwr", MB_ICONINFORMATION | MB_OK);
+		return;
+	}
+
+	const std::wstring prompt =
+		L"Show " + std::to_wstring(refs.size())
+		+ L" hidden setting(s) in Windows' own Advanced power settings dialog?"
+		  L"\n\nThis is machine-wide, not per plan, and it changes what Control "
+		  L"Panel lists rather than any value. Nothing is set or tuned by doing "
+		  L"it.\n\nA Control Panel dialog that is already open keeps its old list "
+		  L"until you reopen it.";
+	if (::MessageBoxW(hwnd_, prompt.c_str(), L"fspwr",
+	                  MB_ICONQUESTION | MB_OKCANCEL) != IDOK)
+		return;
+
+	const AttributeBatch r = unhideAll(refs);
+	std::wstring done = std::to_wstring(r.changed) + L" setting(s) now visible.";
+	if (r.failed > 0) {
+		done += L"\n\n" + std::to_wstring(r.failed) + L" could not be changed";
+		if (r.firstError)
+			done += L":\n" + r.firstError->describe();
+		else
+			done += L".";
+	}
+	::MessageBoxW(hwnd_, done.c_str(), L"fspwr",
+	              r.failed > 0 ? MB_ICONWARNING | MB_OK : MB_ICONINFORMATION | MB_OK);
+	if (r.changed > 0)
+		startEnumeration();
+}
+
 void App::activateSelected() {
 	const GUID* g = selectedSchemeGuid();
 	if (!g) return;
@@ -2343,6 +2429,9 @@ LRESULT App::wndProc(UINT msg, WPARAM wParam, LPARAM lParam) {
 			}
 			return 0;
 		}
+		case ID_CTX_UNHIDE: setSelectedHidden(false); return 0;
+		case ID_CTX_HIDE:   setSelectedHidden(true);  return 0;
+		case ID_CTX_UNHIDE_ALL: unhideEverything(); return 0;
 		case ID_ACTIVATE: activateSelected(); return 0;
 		case ID_RENAME: renameSelected(); return 0;
 		case ID_DESC: editDescriptionSelected(); return 0;
